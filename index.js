@@ -57,7 +57,35 @@ app.get("/closets/:id",async(req,res)=>{
 })
 
 
+app.delete("/closets/:id",async(req,res)=>{
+  const id = req.params.id;
+  const query = {_id:new ObjectId(id)};
+  res.send(await closetCollection.deleteOne(query));
+})
 
+app.put("/closets/:id",async(req,res)=>{
+const id = req.params.id;
+const filter = {_id:new ObjectId(id)};
+const options = {upsert:true};
+const product = req.body
+const updatedCloset = {
+  $set:{
+    name: product.name,
+      category: product.category,
+      subCategory: product.subCategory,
+      gender: product.gender,
+      price: product.price,
+      sizes: product.sizes,
+      color: product.color,
+      shortDescription: product.shortDescription,
+      description: product.description,
+      imageUrl: product.imageUrl,
+      productDetails: product.productDetails,
+  }
+}
+const result = await closetCollection.updateOne(filter,updatedCloset,options)
+res.send(result);
+})
 
   } finally {
     // Ensures that the client will close when you finish/error
