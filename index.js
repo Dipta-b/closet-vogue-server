@@ -103,6 +103,54 @@ async function run() {
       res.send(result);
     })
 
+    //Add to cart API
+    app.post("/products/cart", async (req, res) => {
+      const product = req.body;
+      const result = await closetCollection.insertOne(product);
+      res.send(result);
+    })
+
+    //get products by email
+    app.get("/products/cart", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await closetCollection.find(query).toArray();
+      res.send(result);
+    })
+
+
+    // Update product quantity in cart
+    // Update quantity
+    app.patch("/products/cart/:id", async (req, res) => {
+      const id = req.params.id;
+      const { qty } = req.body;
+
+      if (qty < 1) return res.status(400).send({ error: "Quantity must be at least 1" });
+
+      try {
+        const result = await closetCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { quantity: qty } }
+        );
+        res.send(result);
+      } catch (err) {
+        res.status(500).send({ error: "Failed to update quantity" });
+      }
+    });
+
+    // Remove product from cart
+    app.delete("/products/cart/:id", async (req, res) => {
+      const id = req.params.id;
+
+      try {
+        const result = await closetCollection.deleteOne({ _id: new ObjectId(id) });
+        res.send(result);
+      } catch (err) {
+        res.status(500).send({ error: "Failed to remove item" });
+      }
+    });
+
+
 
   } finally {
     // Ensures that the client will close when you finish/error
