@@ -2,11 +2,12 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 5000;
+const Stripe = require('stripe');
 
 app.use(cors());
 app.use(express.json());
 require('dotenv').config();
-
+const stripe = Stripe(process.env.STRIP_API_KEY);
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.qvi03.mongodb.net/closetWebsite?retryWrites=true&w=majority`;
@@ -147,6 +148,31 @@ async function run() {
         res.send(result);
       } catch (err) {
         res.status(500).send({ error: "Failed to remove item" });
+      }
+    });
+    //Payment api
+    app.post("/create-payment-intent", async (req, res) => {
+      try {
+        const { price } = req.body;
+
+        if (!price || price <= 0) {
+          return res.status(400).json({ error: "Invalid price" });
+        }
+
+        const amount = price * 100; // Stripe expects cents
+
+        const paymentIntent = await stripe.paymentIntents.create({ // ⚠️ fixed typo
+          amount: amount,
+          currency: "usd",
+          automatic_payment_methods: { // ⚠️ fixed typo: 'automaric_payment_methos' → 'automatic_payment_methods'
+            enabled: true,
+          },
+        });
+
+        res.send({ clientSecret: paymentIntent.client_secret });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
       }
     });
 
