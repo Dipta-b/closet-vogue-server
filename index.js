@@ -159,12 +159,12 @@ async function run() {
           return res.status(400).json({ error: "Invalid price" });
         }
 
-        const amount = price * 100; // Stripe expects cents
+        const amount = price * 100;
 
-        const paymentIntent = await stripe.paymentIntents.create({ // ⚠️ fixed typo
+        const paymentIntent = await stripe.paymentIntents.create({
           amount: amount,
           currency: "usd",
-          automatic_payment_methods: { // ⚠️ fixed typo: 'automaric_payment_methos' → 'automatic_payment_methods'
+          automatic_payment_methods: {
             enabled: true,
           },
         });
