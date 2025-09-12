@@ -4,14 +4,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 const Stripe = require('stripe');
 
-app.use(cors({
-  origin: [
-    'http://localhost:5173',   // vite local
-    'http://localhost:3000',   // react local
-    'https://closet-vogue-dipta.netlify.app',
-    'https://closet-vogue-client.netlify.app' // <- add this
-  ]
-}));
+app.use(cors());
 
 app.use(express.json());
 require('dotenv').config();
