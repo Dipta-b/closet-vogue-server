@@ -5,7 +5,7 @@ const port = process.env.PORT || 5000;
 const Stripe = require('stripe');
 
 app.use(cors());
-
+//search er api id related er
 app.use(express.json());
 require('dotenv').config();
 const stripe = Stripe(process.env.STRIP_API_KEY);
@@ -50,7 +50,26 @@ async function run() {
         res.send(result);
       }
     })
-
+ //search api
+    app.get("/closets/search", async (req, res) => {
+      const { search } = req.query;
+    
+      if (!search) return res.send([]);
+    
+      try {
+        // Use regex search on a string field, NOT ObjectId
+        const result = await closetCollection
+          .find({
+            name: { $regex: search, $options: "i" }, // match by name
+          })
+          .toArray();
+    
+        res.send(result);
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ error: "Server error" });
+      }
+    });
     app.get("/closets/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -177,6 +196,7 @@ async function run() {
       }
     });
 
+   
 
 
   } finally {
